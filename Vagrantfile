@@ -5,6 +5,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "puphpet/debian75-x64"
+  config.vm.box_check_update = false
 
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
@@ -19,5 +20,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", inline: "export DEBIAN_FRONTEND=noninteractive"
   config.vm.provision "shell", inline: "apt-get update"
-  config.vm.provision "shell", inline: "apt-get install -y arduino arduino-core python-serial usbutils screen"
+  config.vm.provision "shell", inline: "apt-get install -y arduino arduino-core python-serial usbutils screen python-requests"
 end

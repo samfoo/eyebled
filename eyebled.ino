@@ -77,7 +77,10 @@ int getCommand() {
 
 void loop() {
   int c = getCommand();
-  nowShowing = c || nowShowing;
+
+  if (c != NONE) {
+      nowShowing = c;
+  }
 
   switch(nowShowing) {
     case NONE:

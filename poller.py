@@ -6,18 +6,21 @@ import gocd
 
 server = "http://10.29.112.178:8153"
 def connect_to_serial():
-    port = "/dev/ttyACM0"
-    print "connecting to serial port %s" % port
-
-    leds = serial.Serial(port, 9600)
+    leds = serial.Serial("/dev/ttyACM0", 9600)
+    time.sleep(2)
     leds.write("!")
+
     handshake = leds.read()
 
     if handshake != "?":
         print sys.stderr, "Invalid handshake"
         sys.exit(1)
 
-def update_led_state(state):
+    print "connected!"
+
+    return leds
+
+def update_led_state(leds, state):
     commands = {
         "green": "G",
         "building": "B",
@@ -26,26 +29,28 @@ def update_led_state(state):
     }
 
     print "updating leds to %s" % commands[state]
-    # leds.write(commands[current_build_state])
+    leds.write(commands[state])
 
 def poll_for_build_state(proj):
+    leds = connect_to_serial()
+
+    print "starting to poll for build state"
     current_build_state = "green"
 
     while True:
-        if gocd.is_building(server, "onboarding-web-client"):
+        if gocd.is_building(server, proj):
             new_build_state = "building"
-        elif gocd.is_failed(server, "onboarding-web-client"):
+        elif gocd.is_failed(server, proj):
             new_build_state = "red"
         else:
             new_build_state = "green"
 
         if new_build_state != current_build_state:
             current_build_state = new_build_state
-            update_led_state(current_build_state)
+            update_led_state(leds, current_build_state)
 
-        time.sleep(5)
+        time.sleep(1)
 
 if __name__ == "__main__":
-    # connect_to_serial()
     poll_for_build_state("onboarding-web-client")
 
